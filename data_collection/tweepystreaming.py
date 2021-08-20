@@ -25,72 +25,42 @@ consumer_secret = 'YOUR CONSUMER SECRET'
 access_key = 'YOUR ACCESS KEY'
 access_secret = 'YOUR ACCESS SECRET'
 
-# Oauth 1.0 auth
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-# access auth
-auth.set_access_token(access_key, access_secret)
-api = tweepy.API(auth)
-
-# https://docs.tweepy.org/en/latest/auth_tutorial.html
-# Verify connection
-try:
-    redirect_url = auth.get_authorization_url()
-except tweepy.TweepError:
-    print('Error! Failed to get request token.')
-
-
-# In[ ]:
-
-
-# https://www.cnblogs.com/zhuminghui/p/12918272.html
-# tweepy 中文，搜stream
 
 '''
-stream 和 Rest api 不同，前者是长链接被动获取实时获取数据，后者则是主动请求以获得数据。
-tweepy 实现了 StreamListener 类，我们想要实现 stream 的功能只要继承这个类并重写它的 on_status 方法即可，on_status 方法会在得到数据时被调用
+Collecting tweet data through streaming API is quite different from doing so in REST API. 
+The streaming API is used to passively obtain incoming tweets data in real time, 
+whereas the REST API is used to actively request to obtain data in past one week. 
+Therefore, the streaming API is very useful for obtaining a high volume of tweets in real-time/ for real-time tweet analysis.
 
-https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data
+# https://docs.tweepy.org/en/v3.10.0/streaming_how_to.html
+# https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data
+The streaming api is quite different from the REST api because the REST api is used to pull data from twitter 
+but the streaming api pushes messages to a persistent session. 
+This allows the streaming api to download more data in real time than could be done using the REST API.
+
+Tweepy implements the StreamListener class. 
+Thereby when using the streaming API , users only need to inherit this class and override its on_status function 
+to implement the a Stream object and connect to the Twitter API. 
+The on_status method will be called when pulling the new data.
 
 '''
 
 
-# In[ ]:
 
-
-# extended 的处理 要看
-# https://docs.tweepy.org/en/latest/extended_tweets.html
-
-# 目前是没有一个retweet的
-# 搜不到 retweet,搜不到python的 
-
-
-# In[8]:
-
-
-# 创建类
-# https://docs.tweepy.org/en/v3.10.0/streaming_how_to.html#a-few-more-pointers
-
-#override tweepy.StreamListener to add logic to on_status
-
-# Convert Tweepy Status to JSON
-# https://stackoverflow.com/questions/27900451/convert-tweepy-status-object-into-json
-
+# override tweepy.StreamListener to add logic to on_status
+# This function creates a class inheriting from Tweepy StreamListener
+# This function is partly from Risser (2020): https://towardsdatascience.com/how-to-create-a-dataset-with-twitter-and-cloud-computing-fcd82837d313
+# This function is partly from Taskinoor (2015): https://stackoverflow.com/questions/27900451/convert-tweepy-status-object-into-json
+# This function is partly from AWS (2021): https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/firehose.html#Firehose.Client.put_record
+# This function is partly from Tweepy (2021): https://docs.tweepy.org/en/latest/extended_tweets.html
 class TwitterStreamListener(StreamListener):
 
-    # 注意只能 on_data, on_status 出来的是status 会报错
-    # status 是一个对象，里面包含了该条推文的所有字段，比如推文内容、点赞数、评论数、作者id、作者昵称、作者粉丝数等等
-    
     # override on_data function
     def on_data(self, data):
         #print(status.text)
         
-        # https://www.geeksforgeeks.org/json-loads-in-python/
         # load Json data into python dictionary
-        
         tweet = json.loads(data)
-        
-        #'extended tweets'
-        # keys() returns keys in a dictiorary
         
         try:            
             # !!!! If status is a Retweet, it will not have an extended_tweet attribute, and status.text could be truncated.
@@ -156,7 +126,7 @@ class TwitterStreamListener(StreamListener):
                           str(quoted_author_id),
                           is_reply,
                           reply_to_id,
-                          '\n', # 会基于换行符 ('\n') 分析每个文件中的记录
+                          '\n', # AWS Firehose will decode the records in each file based on the character ('\n')
                          ]
             
             # formating message 
@@ -164,43 +134,45 @@ class TwitterStreamListener(StreamListener):
             print(record)
             
             # deliver message to the S3 through the Firehose delivery streams
-            # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/firehose.html#Firehose.Client.put_record
             client.put_record(
                 DeliveryStreamName = 'tweepystreaming',
                 Record={
                     'Data': record
                 }
             )            
-            
-            
+                       
         except (AttributeError, Exception) as e:
             print (e)
         
         return True
         
-        
-        
     def on_error(self,status):
         print (status)
 
 
-# In[10]:
+        
+    
 
-
+# This fucntion is partly from Tweepy (2021): https://docs.tweepy.org/en/latest/stream.html#tweepy.Stream.filter
+# This fucntion is partly from Tweepy (2021): https://docs.tweepy.org/en/latest/streaming.html
+# This fucntion is partly from Tweepy (2021): https://docs.tweepy.org/en/latest/stream.html
 if __name__ == '__main__':
-    # 创建流
+    # create overode StreamListener class 
     Tweet_listener = TwitterStreamListener()
-
-    # https://docs.tweepy.org/en/latest/stream.html
-    # https://docs.tweepy.org/en/latest/streaming.html
-    # Stream 类 
-    # https://docs.tweepy.org/en/latest/stream.html#tweepy.Stream
-    # filter的用法
-    # https://docs.tweepy.org/en/latest/stream.html#tweepy.Stream.filter
-
+    
+    # Oauth 1.0 get authenication
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    # access auth
     auth.set_access_token(access_key, access_secret)
+    # connect to twitter api
     api = tweepy.API(auth)
+    
+    # Verify connection
+    # This function is from Tweepy (2021): https://docs.tweepy.org/en/latest/auth_tutorial.html
+    try:
+        redirect_url = auth.get_authorization_url()
+    except tweepy.TweepError:
+        print('Error! Failed to get request token.')
     
     
     # set Firehose data delivery stream
@@ -210,28 +182,19 @@ if __name__ == '__main__':
                           aws_secret_access_key = 'YOUR_AWS_ACCESS_KEY_SECRET'
                           ) 
     # Kinesis name
-    # delivery_stream = 'tweepystreaming'
     
-    # 启动stream  --- 支持异步，参数is_async，推荐使用异步形式
-    
-    #tweet_stream.filter(track=terms, is_async=True)
-    
+    # terms to be tracked, A OR B
     terms = ['Huawei','P50','HarmonyOS']
-    # 这样搜会有很多不属于华为P50的手机型号，比如P40什么的
     
     while True:
         try:
             print('Twitter streaming...')
-            # 身份验证，绑定监听流媒体
+            # create tweet streaming
             tweet_stream = tweepy.Stream(auth = api.auth, listener = Tweet_listener, tweet_mode='extended')
-            # 应该是先listen 然后再filter 所以一开始的是杂乱的
-            
-            # 确定track的规则 想track 包含 python或Java的推文 而不是两个都包含的
+            # set streaming filter
+            # track for all tweets containing words in terms list (OR operation)
             tweet_stream.filter(track=terms, languages=['en'], stall_warnings=True)
-            #track 后面必须加list, list里面包含关键词
-            #包含两个关键词呢 track 里track的本来就是 A或B
-            #https://docs.tweepy.org/en/latest/stream.html#tweepy.Stream.filter
-            
+
         except Exception as e:
             print(e)
             print('Disconnected...')
