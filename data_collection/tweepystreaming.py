@@ -1,22 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[2]:
-
-
 #pip install tweepy
 
-
-# In[3]:
-
-
-# Define IAM role
+# AWS resource
 import boto3
 import re
-# from sagemaker import get_execution_role
-# role = get_execution_role()
-# import sagemaker
-# from sagemaker.predictor import csv_serializer
+
 #   import tweepy things
 import tweepy
 from tweepy.streaming import StreamListener
@@ -25,47 +14,25 @@ from tweepy import Stream
 # import others
 # import pandas as pd
 # import numpy as np
-# import matplotlib.pyplot as plt
 import json
 import time
 import datetime
 import sys
 
-
-# In[4]:
-
-
 # twitter keys
-consumer_key = 'KrZINiWKxyGH540GC5QDfRvhS'
-consumer_secret = 'TV92ydK18ry71hbdENEIbauKMglgMwf71bZqLsf8knN45yHzKt'
+consumer_key = 'YOUR CONSUMER KEY'
+consumer_secret = 'YOUR CONSUMER SECRET'
+access_key = 'YOUR ACCESS KEY'
+access_secret = 'YOUR ACCESS SECRET'
 
-access_key = '1323281849364480006-pJQvWemDB7pdIn2eOqWd6gymIQwA4N'
-access_secret = 'x2Q8SeEuR7lOnYKl64MnRFKMmktgVEPjfG20aJJdLgMoC'
-
-
-# In[5]:
-
-
-#OAuth 2身份验证 创建一个AppAuthHandler实例  仅公共信息的只读访问权限
-#https://docs.tweepy.org/en/latest/auth_tutorial.html
-
-# Oauth 1.0
+# Oauth 1.0 auth
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-
-
-# In[6]:
-
-
 # access auth
 auth.set_access_token(access_key, access_secret)
 api = tweepy.API(auth)
 
-
-# In[7]:
-
-
 # https://docs.tweepy.org/en/latest/auth_tutorial.html
-# 验证链接
+# Verify connection
 try:
     redirect_url = auth.get_authorization_url()
 except tweepy.TweepError:
@@ -239,9 +206,9 @@ if __name__ == '__main__':
     # set Firehose data delivery stream
     client = boto3.client('firehose',
                           region_name = 'us-east-1',
-                          aws_access_key_id = 'AKIA426II2GSWONAECM6',
-                          aws_secret_access_key = '7Fp1xeiFHB53mAsSp/NoCwPIHy94OA9hYVktJHkl'
-                          ) # 所以必须加session_token？
+                          aws_access_key_id = 'YOUR_AWS_ACCESS_KEY',
+                          aws_secret_access_key = 'YOUR_AWS_ACCESS_KEY_SECRET'
+                          ) 
     # Kinesis name
     # delivery_stream = 'tweepystreaming'
     
@@ -270,75 +237,6 @@ if __name__ == '__main__':
             print('Disconnected...')
             time.sleep(5)
             continue   
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 
