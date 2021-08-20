@@ -1,19 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 #pip install --upgrade gensim
 #pip install tqdm
 #pip install pyldavis
 # install pickle
 
-
-# In[1]:
-
-
-# Define IAM role
+# import boto3
 import boto3
 
 # NLP things
@@ -49,19 +42,12 @@ import urllib.parse
 import csv
 
 
-# In[2]:
-
-
-# import nltk
+# download nltk sfuff
 nltk.download('stopwords')
 nltk.download('punkt')
-
 from nltk.corpus import stopwords
 # use English stopwords
 stops = set(stopwords.words("english"))
-
-
-# In[3]:
 
 
 #########################################
@@ -134,12 +120,11 @@ def text_cleaning(data):
     data = data.map(lambda text:  re.sub(r'\s+', ' ', text))
     
     # 删除过短的记录 delete short sentence?? # 可以结合word token，计算长度？
-    
     return data
 
-
-# In[ ]:
-
+#########################################
+##  TEXT PROCESSING FUNCTIONS
+#########################################
 
 # This function is for tokenising sentences in the corpus
 def tokenising_corpus(data):
@@ -151,9 +136,6 @@ def tokenising_corpus(data):
         word_tokens.append(word_tokenize(tweet))
         
     return word_tokens
-
-
-# In[24]:
 
 
 # This function allows user to remove stopwords
@@ -168,9 +150,6 @@ def custom_words_remover(word_lst, text_tokens):
     return processed_tokens
 
 
-# In[ ]:
-
-
 # This function is for stemming the words in the corpus
 def stemming_words(text_tokens):
     #from nltk.stem import PorterStemmer
@@ -181,10 +160,6 @@ def stemming_words(text_tokens):
         stemmed.append([ps.stem(word) for word in token])
     
     return stemmed
-
-
-# In[5]:
-
 
 # Function for making biagram
 # This funciton is from Prabhakaran (2018): https://www.machinelearningplus.com/nlp/topic-modeling-gensim-python/
@@ -198,9 +173,9 @@ def make_bigrams(data,min_count,thres):
     
     return [bigram_mod[doc] for doc in data]
 
-
-# In[42]:
-
+#########################################
+##  LDA MODEL SUPPORT FUNCTIONS
+#########################################
 
 # Compute the perplexity and coherence score of the model
 # This function is from Kapadia (2019):https://towardsdatascience.com/evaluate-topic-model-in-python-latent-dirichlet-allocation-lda-7d57484bb5d0
@@ -218,9 +193,6 @@ def model_benchmarking(data, model, dictionary, corpus):
     coherence_lda = coherence_model_lda.get_coherence()
 
     print('\nCoherence Score: ', coherence_lda)
-
-
-# In[ ]:
 
 
 # Supporting function of the model tuning: build individual lda model and compute its coherence
@@ -244,9 +216,6 @@ def compute_coherence_values_basic(data,corpus,dictionary,k,alpha):
                                          coherence='c_v')
     # get coherence score
     return coherence_model_lda.get_coherence()
-
-
-# In[ ]:
 
 
 # This function search the optimal hyperparameter settings for the lda model
@@ -317,10 +286,6 @@ def tuning_lda_model(data,corpus,dictiornay, min_topics, max_topics, step_size):
     
     return model_results
 
-
-# In[ ]:
-
-
 # This functions is for creating the documents-topic matrix
 # which can show the individual document's probabilities for each topic
 # This function is from Wang (2019): https://stackoverflow.com/questions/56408849/after-applying-gensim-lda-topic-modeling-how-to-get-documents-with-highest-prob
@@ -335,15 +300,9 @@ def create_doc_topic_matrix(model, corpus, num_topics):
         topic_vector = model[corpus[doc_id]]
         for topic_id, prob in topic_vector: 
             topic_dict[topic_id].append(prob)
-    
     # Create documents-topic matrix
     doc_topic = pd.DataFrame.from_dict(topic_dict)
-    
     return doc_topic
-
-
-# In[88]:
-
 
 # Function for creating eta matrix for training the guided lda model
 # the eta matrix can be used as a prior belief on word probability
@@ -370,20 +329,17 @@ def create_eta_matrix(num_topics,top_n,lda_model,id2word):
     return eta_matrix
 
 
-# In[86]:
-
-
 # Function is for deleting abandoned topic from the eta matrix
 # This function is from Deshpande (2012): https://stackoverflow.com/questions/3877491/deleting-rows-in-numpy-array
 def abandon_topic(topic_id, matrix):
     matrix = np.delete(matrix, (topic_id), axis=0)
     return matrix
 
+#########################################
+##  AUTOMATED SAVING HELPERS
+#########################################
 
-# In[ ]:
-
-
-# save the model to model_path
+# Function for saving the model to model_path
 def save_lda_model(model, model_name, save_path):
     # save the model to model_path
     model.save(save_path+'{}.model'.format(model_name))
@@ -391,10 +347,6 @@ def save_lda_model(model, model_name, save_path):
     components = [file for file in os.listdir(model_path) if file.startswith(model_name)]
     
     return components
-
-
-# In[ ]:
-
 
 # Function for uploading eta matrix and list of component to S3
 # This function is from Shabani (2018): https://stackoverflow.com/questions/49120069/writing-a-pickle-file-to-an-s3-bucket-in-aws
@@ -409,10 +361,6 @@ def file_upload_helper(file, file_name, bucket_name):
     s3_resource.Object(bucket_name, obj_key).put(Body=obj_pkl)
     print('Success')
 
-
-# In[ ]:
-
-
 # Function for uploading model to S3
 # This function is from Sophros (2020): https://stackoverflow.com/questions/61638940/save-a-gensim-lda-model-to-s3
 def model_upload_helper(file_lst, local_path, bucket_name):
@@ -426,26 +374,10 @@ def model_upload_helper(file_lst, local_path, bucket_name):
         print('successfully upload ' + file_name)
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[6]:
-
+#########################################
+##  EXCUTIONS
+#########################################
+        
 
 # read the data
 bucket_name = "proxy-data-and-pre-collected-data-for-training"
@@ -455,21 +387,8 @@ file_key_brand = "20191226-items.csv"
 data_location_text = "s3://proxy-data-and-pre-collected-data-for-training/20191226-reviews.csv"
 data_location_brand = "s3://proxy-data-and-pre-collected-data-for-training/20191226-items.csv"
 
-
-# In[7]:
-
-
 df_text = pd.read_csv(data_location_text)
 df_brand = pd.read_csv(data_location_brand)
-
-
-# In[8]:
-
-
-df_text.head()
-
-
-# In[9]:
 
 
 # merge the two dataset
@@ -479,51 +398,25 @@ df = df_text.merge(df_brand, how='left', on='asin')
 df.drop(['asin','name','date','verified'], axis=1, inplace=True)
 df.head()
 
-
-# In[10]:
-
-
 # Initial exploratory data analysis
 df.groupby(['brand']).count()
 
-
-# In[11]:
-
-
 # Check NA
 print(df.isnull().sum())
-
-
-# In[12]:
-
-
 # Delete NA in review title and body
 df = df.dropna(axis=0, subset=['title','body'])
-
-
-# In[13]:
-
 
 # reset the dataframe index
 df = df.reset_index()
 # drop old index column
 df = df.drop(['index'], axis=1)
 
-
-# In[14]:
-
-
 # Combine the review title and body into full text for analysis
 df['text'] = df['title'] + ' ' +df['body']
-
-
-# In[15]:
-
 
 df.head()
 
 
-# In[16]:
 
 
 #########################################
@@ -533,22 +426,12 @@ df.head()
 # text cleaning
 df['text'] = text_cleaning(df['text'])
 
-
-# In[19]:
-
-
 # Tokenising sentences in the corpus
 word_tokens = tokenising_corpus(df['text'])
-
 # keep the copies
 df['text_tokens'] = word_tokens
-
 # get the length of each text
 df['text_len'] = df['text_tokens'].map(lambda x: len(x))
-
-
-# In[25]:
-
 
 ###################################
 #      Deleting stop words
@@ -559,17 +442,12 @@ stops = set(stopwords.words("english"))
 # remove stopwords
 filtered_tokens = custom_words_remover(stops, word_tokens)
 
-
-# In[ ]:
-
-
 ###################################
 #           Stemming
 ###################################
 stemmed = stemming_words(filtered_tokens)
 
 
-# In[20]:
 
 
 '''
@@ -590,9 +468,6 @@ and associate the negetive word with the topic "screen"
 '''
 
 
-# In[30]:
-
-
 # Use defined function to specify some irrelevant words in this case (such sentiments) for tuning the model
 # This will only apply to the first LDA model for get more clear topics
 
@@ -605,36 +480,18 @@ newstopwords = ['like', 'good', 'better', 'best', 'bad', 'worse', 'worst', 'happ
 # delete new added stopwords from the text tokens
 df['processed_tokens'] = custom_words_remover(newstopwords, stemmed)
 
-
-# In[25]:
-
-
 # Phrase Modeling: Making Bigrams
 # Build the bigram model with min_count=10
 # higher threshold fewer phrases.
 df['processed_tokens'] = make_bigrams(data= df['processed_tokens'],min_count= 10,thres= 100)
 
 
-# In[34]:
-
-
 # drop processed columns
 df.drop(['title','body'], axis=1, inplace=True)
 
 
-# In[40]:
-
-
 df.head()
 
-
-# In[ ]:
-
-
-
-
-
-# In[28]:
 
 
 #########################################################
@@ -653,14 +510,6 @@ texts = df['processed_tokens']
 corpus = [id2word.doc2bow(text) for text in texts]
 
 
-# In[ ]:
-
-
-
-
-
-# In[43]:
-
 
 ##########################################################################
 ##            Building the basic LDA model
@@ -677,21 +526,8 @@ lda_model = gensim.models.LdaMulticore(corpus = corpus,
                                        random_state=5, 
                                        minimum_probability=0)
 
-
-# In[44]:
-
-
 # Compute the perplexity and coherence score of the model
 model_benchmarking(df['processed_tokens'], lda_model, id2word, corpus)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 ##########################################################################
@@ -703,27 +539,13 @@ model_results = tuning_lda_model(data = df['processed_tokens'],
                                  corpus = corpus,
                                  dictiornay = id2word,
                                  min_topics = 5, 
-                                 max_topics = 6,
+                                 max_topics = 20,
                                  step_size = 1)
 
 # Convert to the dataframe and save to the csv files
 model_results_df = pd.DataFrame.from_dict(model_results)
 model_results_df.to_csv("lda_on_proxy_tuning_results.csv")
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[79]:
 
 
 ##########################################################################
@@ -749,36 +571,12 @@ lda_model = gensim.models.LdaMulticore(corpus = corpus,
 # Perplexity:  -7.206703803237903
 # Coherence Score:  0.5061053071793964
 
-
-# In[80]:
-
-
 # Compute the perplexity and coherence score of the model
 model_benchmarking(df['processed_tokens'], lda_model, id2word, corpus)
-
-
-# In[ ]:
-
-
-
-
-
-# In[32]:
-
 
 # from pprint import pprint
 # print the top 20 keywords under each topic
 pprint(lda_model.print_topics(num_words=20))
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
 
 # Visualisation
 # Visualize the topics 
@@ -787,14 +585,6 @@ pyLDAvis.enable_notebook()
 LDAvis_prepared = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
 LDAvis_prepared
 
-
-# In[ ]:
-
-
-
-
-
-# In[82]:
 
 
 ##########################################################
@@ -806,10 +596,6 @@ texts = test['processed_tokens']
 # create new corpus
 corpus_new = [lda_model.id2word.doc2bow(text) for text in texts]
 
-
-# In[84]:
-
-
 # Creating the documents-topic matrix
 # which can show the individual document's probabilities for each topic
 doc_topic = create_doc_topic_matrix(model = lda_model,
@@ -818,35 +604,16 @@ doc_topic = create_doc_topic_matrix(model = lda_model,
 print(doc_topic.head())
 
 
-# In[103]:
-
-
 # Concat documents-topic matrix with the review dataframe
 joined_df = pd.concat([df, doc_topic], axis = 1, join = 'outer')
-
-
-# In[88]:
-
-
 # Select the 20 comments that are most relevant to topic n
 # Notice that the column name is INT value in this case
 joined_df.sort_values(by = 10,ascending=False)['text'].iloc[0:19].tolist()
-
-
-# In[76]:
-
 
 # show the top 20 words under each topic
 lda_model.show_topic(topicid = 0, topn = 20)
 
 
-# In[ ]:
-
-
-
-
-
-# In[89]:
 
 
 #################################
@@ -857,18 +624,11 @@ lda_model.show_topic(topicid = 0, topn = 20)
 # can be use to assign probabilities for each word-topic combination
 eta_matrix = create_eta_matrix(num_topics,20,lda_model,id2word)
 
-
-# In[90]:
-
-
 # Check if it works well
 print(eta_matrix.shape,'\n')
 print(lda_model.get_topic_terms(topicid=5,topn=20),'\n')
 print(eta_matrix[5][72],'\n')
 print(eta_matrix[5][122],'\n')
-
-
-# In[39]:
 
 
 # Deleting abandoned topic from the eta matrix
@@ -880,10 +640,6 @@ eta_matrix = abandon_topic(topic_id = 3, matrix = eta_matrix)
 # Notice now original topic 4 become the topic 3 in the eta matrix (after deleting the previous topic3)
 eta_matrix = abandon_topic(topic_id = 3, matrix = eta_matrix)
 
-
-# In[43]:
-
-
 # Check if it works well
 #eta_matrix[:,72]
 print(eta_matrix.shape,'\n')
@@ -892,15 +648,6 @@ print(lda_model.get_topic_terms(4),'\n')
 
 print(lda_model.get_topic_terms(5),'\n')
 print(eta_matrix[3][72],'\n')
-
-
-# In[ ]:
-
-
-
-
-
-# In[96]:
 
 
 #################################
@@ -912,28 +659,12 @@ model_path = homepath + 'LDA_model_on_proxy_data/'
 print(model_path)
 
 
-# In[100]:
-
-
 # save the model to model_path and get list of componenets
 components = save_lda_model(lda_model, 'lda_model_on_proxy_data', model_path)
-
-
-# In[102]:
-
 
 # Check if it works well
 print(os.listdir(model_path),'\n')
 print(components)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 #################################
@@ -943,47 +674,13 @@ bucket_name = 'lda-model-on-proxy-data'
 #homepath = '/home/ec2-user/SageMaker/'
 #model_path = homepath + 'LDA_model_on_proxy_data/'
 
-
-# In[229]:
-
-
 # Upload eta_matrix and list of component to S3
 file_upload_helper(file = eta_matrix, file_name ='eta_matrix', bucket_name='lda-model-on-proxy-data')
 file_upload_helper(file = components, file_name ='components', bucket_name='lda-model-on-proxy-data')
 
-
-# In[151]:
-
-
 # Upload model to S3
 model_upload_helper(components, model_path, bucket_name)
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 
