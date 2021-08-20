@@ -1,3 +1,4 @@
+# AWS resource
 import boto3
 
 # NLP things
