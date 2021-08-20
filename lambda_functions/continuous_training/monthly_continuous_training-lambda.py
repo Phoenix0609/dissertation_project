@@ -1,7 +1,8 @@
 # remember to allocate more RAM in the configuration, at least 1024 MB
 # 提一下lambda可能不是最优的训练场所 因为有时间限制,所以话题数量不敢设的太高 也不敢用测试集
+# Notice that Lambda gets maximum duration up to 15 mins per execution, 
+# thus need to carefully design hyperparameter grids and allocate computing resources (like RAM)
 import boto3
-
 
 # LDA models
 import gensim
