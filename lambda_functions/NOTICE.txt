@@ -1,0 +1,1 @@
+NOTICE THAT: AWS Lambda functions can only run up to 15 minutes per execution
