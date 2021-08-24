@@ -126,7 +126,7 @@ def create_eta_matrix(num_topics,top_n,lda_model,id2word):
     
     # update the eta_matrix
     # add the confidence to top_n words based on the model output probabilities
-    # hierarchical assignment: assign top 10 words with extra 0.15 and assign the top 10-20 words with 0.1
+    # hierarchical assignment: assign top 10 words with extra 0.10 and assign the top 10-20 words with 0.05
     for topic_i in range(num_topics):
         top_words = lda_model.get_topic_terms(topicid=topic_i,topn=top_n)
         #count = 0
