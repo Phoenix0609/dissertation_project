@@ -203,7 +203,7 @@ def tweets_filter(data, words_pair):
     data = data[(data['text'].str.contains(words_pair[0], case=False)) & (data['text'].str.contains(words_pair[1], case=False))]
     return data
 
-# Function for download files including the model component list and eat matrix
+# Function for download files including the model component list and eta matrix
 # This function is from Kindjacket (2019): https://stackoverflow.com/questions/48964181/how-to-load-a-pickle-file-from-s3-to-use-in-aws-lambda
 def file_download_helper(file_key, bucket_name):
     s3_resource = boto3.resource('s3')
