@@ -239,7 +239,7 @@ def dictionary_updater(dictionary, data):
     return dictionary, ori_len, new_len
 
 # This function is for updating the eta matrix to fit the new number of topics
-# Notice that the number of new topics should be more than 9 (the num of rows in the eta matrix)
+# Notice that the number of new topics should be at least 9 (the num of rows in the eta matrix)
 # which is the number of pre-defined topics with prior knowledge
 def eta_matrix_updater(num_topics, ori_len, new_len, matrix):
     
