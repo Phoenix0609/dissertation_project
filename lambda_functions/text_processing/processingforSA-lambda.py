@@ -72,7 +72,7 @@ def retrive_tweet_files(used_time, bucket_name):
         
     return df
     
-# Function is for fliterring tweets containing only 'huawei' AND 'p50'
+# Function is for fliterring irrlevant contents and only  keep tweets containing 'huawei' AND 'p50'
 # Despite that tweets have been filtered in the streaming stage, a extra filter is set here to ensure accuracy
 # This function is from Flyingmeatball (2016): https://stackoverflow.com/questions/37011734/pandas-dataframe-str-contains-and-operation
 # Notice that the word pair should be exactly two words
