@@ -184,7 +184,7 @@ if __name__ == '__main__':
     # Kinesis name
     
     # terms to be tracked, A OR B
-    terms = ['Huawei','P50','HarmonyOS']
+    terms = ['Huawei','P50']
     
     while True:
         try:
