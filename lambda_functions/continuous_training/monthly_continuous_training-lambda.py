@@ -186,11 +186,6 @@ def model_benchmarking(data, model, dictionary, corpus):
 
 # Supporting function of the model tuning: build individual lda model and compute its coherence
 # This function is from Kapadia (2019):https://towardsdatascience.com/evaluate-topic-model-in-python-latent-dirichlet-allocation-lda-7d57484bb5d0
-
-####################### 别忘了改 passe =  30
-####################### 别忘了改 passe =  30
-####################### 别忘了改 passe =  30
-
 def compute_coherence_values_basic(data,corpus,dictionary,k,matrix):
     # from gensim.models import CoherenceModel
     # build individual lda model
@@ -204,7 +199,7 @@ def compute_coherence_values_basic(data,corpus,dictionary,k,matrix):
                                            alpha = 'symmetric',
                                            eta = matrix,
                                            random_state=5,
-                                           passes=10)                  # 别忘了改10或者20或者30
+                                           passes=10)                  
     
     #p = lda_model.log_perplexity(corpus)
     # build coherence model
