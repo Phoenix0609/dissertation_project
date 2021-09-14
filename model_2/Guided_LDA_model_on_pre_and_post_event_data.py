@@ -245,14 +245,14 @@ def eta_matrix_updater(num_topics, ori_len, new_len, matrix):
     extended_len = new_len - ori_len
     ori_num_topics = matrix.shape[0]
     
-    # if the number of new topics equals to the number of pre-defined topics
+    # if the number of new topics is not equal to the number of pre-defined topics
     if num_topics != ori_num_topics:
         matrix_new_added_1 = np.full(((num_topics-ori_num_topics), ori_len), 0.001)
         matrix_temp = np.r_[ matrix, matrix_new_added_1] # add rows
         # extend the matrix 
         matrix_new_added_2 = np.full((num_topics, extended_len), 0.001)
         matrix = np.c_[ matrix_temp, matrix_new_added_2]
-    # if the number of new topics is more than to the number of pre-defined topics
+    # if the number of new topics is equal to the number of pre-defined topics
     else:
         matrix_new_added = np.full((num_topics, extended_len), 0.001)
         # extend the matrix 
