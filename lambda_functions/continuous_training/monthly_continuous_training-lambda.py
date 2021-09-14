@@ -468,7 +468,7 @@ def lambda_handler(event, context):
                                                 corpus = corpus,
                                                 dictiornay = id2word,
                                                 min_topics = 12, 
-                                                max_topics = 25,              #############改
+                                                max_topics = 25,              
                                                 step_size = 1, 
                                                 ori_matrix = eta_matrix_ori,
                                                 ori_len = ori_len, 
@@ -492,7 +492,7 @@ def lambda_handler(event, context):
         guided_lda = gensim.models.LdaModel(corpus = corpus,
                                             id2word = id2word,
                                             num_topics = num_topics,
-                                            passes = 20,                       # ########别忘了改
+                                            passes = 20,                       
                                             alpha = 'symmetric',
                                             eta = eta_matrix,
                                             random_state=5,
