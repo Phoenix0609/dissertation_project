@@ -265,7 +265,6 @@ def lambda_handler(event, context):
         #id2word, ori_len, new_len = dictionary_updater(dictionary= id2word, data= df['processed_tokens'])
         
         '''
-        https://stackoverflow.com/questions/22196248/gensim-lda-model-calling-update-on-a-corpus-with-unseen-words
         you must use the same dictionary (mapping between words and their integer ids) for both training, UPDATES and inference.
         Which means you can update the model with new documents, but not with new word types.
         new words will be added to the model in the continuous training part
