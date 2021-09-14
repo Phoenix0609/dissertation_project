@@ -70,7 +70,6 @@ def deleteEmojis(text):
     return emoji_pattern.sub(r' ',text)
 
 # Function for deleting default tags or labels in the tweets like 'VIDEO:' and 'AUDIO:'
-# This function is partly from Bica (2010): https://stackoverflow.com/questions/33404752/removing-emojis-from-a-string-in-python
 def remove_tweet_marks(tweet):
     tweet = re.sub('VIDEO:', '', tweet)  # remove 'VIDEO:' from start of tweet
     tweet = re.sub('AUDIO:', '', tweet)  # remove 'AUDIO:' from start of tweet
