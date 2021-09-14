@@ -266,7 +266,6 @@ def lambda_handler(event, context):
         
         '''
         https://stackoverflow.com/questions/22196248/gensim-lda-model-calling-update-on-a-corpus-with-unseen-words
-        必须使用相同的字典（单词及其整数 id 之间的映射）进行训练、更新和推理。，因此就算是update也没有用
         you must use the same dictionary (mapping between words and their integer ids) for both training, UPDATES and inference.
         Which means you can update the model with new documents, but not with new word types.
         new words will be added to the model in the continuous training part
