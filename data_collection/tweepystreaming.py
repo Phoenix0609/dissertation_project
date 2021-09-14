@@ -32,8 +32,6 @@ The streaming API is used to passively obtain incoming tweets data in real time,
 whereas the REST API is used to actively request to obtain data in past one week. 
 Therefore, the streaming API is very useful for obtaining a high volume of tweets in real-time/ for real-time tweet analysis.
 
-# https://docs.tweepy.org/en/v3.10.0/streaming_how_to.html
-# https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data
 The streaming api is quite different from the REST api because the REST api is used to pull data from twitter 
 but the streaming api pushes messages to a persistent session. 
 This allows the streaming api to download more data in real time than could be done using the REST API.
