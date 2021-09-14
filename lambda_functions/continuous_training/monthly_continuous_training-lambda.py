@@ -199,7 +199,7 @@ def compute_coherence_values_basic(data,corpus,dictionary,k,matrix):
                                            alpha = 'symmetric',
                                            eta = matrix,
                                            random_state=5,
-                                           passes=10)                  
+                                           passes=20)                  
     
     #p = lda_model.log_perplexity(corpus)
     # build coherence model
