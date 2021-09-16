@@ -1,8 +1,9 @@
-# remember to allocate more RAM in the configuration, at least 1024 MB
 # Notice that Lambda gets maximum duration up to 15 mins per execution, 
 # thus need to carefully design hyperparameter grids and allocate computing resources (like RAM)
-import boto3
+# Though the AWS is responsible for dynamically managing the backend and provisioning computing resources,
+# it will be better to allocate more RAM in the configuration in advance, at least 1024 MB
 
+import boto3
 # LDA models
 import gensim
 import gensim.corpora as corpora
