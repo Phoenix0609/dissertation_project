@@ -177,7 +177,6 @@ def text_cleaning(data):
     # deleting surplus spacings
     data = data.map(lambda text:  re.sub(r'\s+', ' ', text))
     
-    # 删除过短的记录 delete short sentence?? # 可以结合word token，计算长度？
     return data
 
 #########################################
