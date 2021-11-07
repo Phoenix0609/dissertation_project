@@ -1,5 +1,8 @@
 # dissertation_project
-dissertation project: auto e-WoM analysis system
+dissertation project: automated e-WoM analysis system on the AWS cloud
+
+![image](https://user-images.githubusercontent.com/41898293/140634656-3ecf6f86-aadd-41ca-9184-58fbc6a65b2d.png)
+
 # 1	data_collection
 1.1	“tweepystreaming.py”
 This script constantly pulls real-time tweets through Twitter streaming API.
